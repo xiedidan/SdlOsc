@@ -4,15 +4,15 @@
 #pragma comment(lib, "opengl32")
 #pragma comment(lib, "glu32")
 
-#pragma comment(lib, "freetype264")
-
 #include "sdl\include\SDL.h"
 #include "sdl\include\SDL_thread.h"
 #include "sdl\include\SDL_opengl.h"
 #include <GL/GL.h>
 #include <GL/glu.h>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include "string_render.h"
 
 #include "common.h"
 #include "sdl_service.h"
@@ -167,97 +167,18 @@ int renderThreadFunc(void* data) {
 	// now init our local GL context
 	initGL(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	// freetype 2
-	FT_Library ftLib;
-	FT_Error ftErr;
-	
-	// init
-	ftErr = FT_Init_FreeType(&ftLib);
-	if (ftErr != FT_Err_Ok) {
-		// TODO : ft init error - ignored for now
-		cout << "FT_Init_FreeType() failed." << endl;
-	}
-
-	FT_Face ftFace;
-	ftErr = FT_New_Face(ftLib, "ARIALUNI.TTF", 0, &ftFace);
-	if (ftErr == FT_Err_Unknown_File_Format) {
-		// TODO : file could be read, but its format is unknown
-		cout << "FT_New_Face() found unknown format." << endl;
-	}
-	else if (ftErr != FT_Err_Ok) {
-	  // TODO : couldn't read font file
-		cout << "FT_New_Face() failed. " << ftErr << endl;
-	}
-	
-	ftErr = FT_Set_Char_Size(ftFace, 0, 12 * 64, 96, 96);
-	if (ftErr != FT_Err_Ok) {
-	  // TODO : error handler - ignored for now
-		cout << "FT_Set_Char_Size() failed." << endl;
-	}
+	// init FreeType2
+	initFreeType();
+	initCharmap();
 	
 	// render loop
 	while (renderFlag) {
 		drawRuler();
+
 		// TODO : draw frame
 
-		// TODO : remove this - freetype test
-		// ftErr = FT_Load_Char(ftFace, 0x00042, FT_LOAD_RENDER);
-		
-		FT_UInt  glyph_index;
-		glyph_index = FT_Get_Char_Index(ftFace, 0x0041);
-		ftErr = FT_Load_Glyph(ftFace, glyph_index, FT_LOAD_DEFAULT);
-		if (ftErr)
-			continue;
-		ftErr = FT_Render_Glyph(ftFace->glyph, FT_RENDER_MODE_NORMAL);
-		if (ftErr)
-			continue;
-
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glPixelStorei(GL_UNPACK_LSB_FIRST, 1);
-		int moreRowBits = ftFace->glyph->bitmap.width % 8;
-		int rowBytes = ftFace->glyph->bitmap.width / 8;
-		if (moreRowBits != 0)
-			rowBytes++;
-
-		GLubyte* bitmap[8];
-		for (int i = 0; i < 8; i++) {
-			bitmap[i] = (GLubyte*)malloc(rowBytes * ftFace->glyph->bitmap.rows);
-			memset(bitmap[i], 0, rowBytes * ftFace->glyph->bitmap.rows);
-		}
-
-		for (int i = 0; i < ftFace->glyph->bitmap.rows; i++) {
-			for (int j = 0; j < ftFace->glyph->bitmap.width; j++) {
-				int revI = ftFace->glyph->bitmap.rows - i - 1;
-				int index = revI * ftFace->glyph->bitmap.width + j;
-				GLubyte level = ftFace->glyph->bitmap.buffer[index] >> 5;
-				if (ftFace->glyph->bitmap.buffer[index] != 0) {
-					int byteIndex = i * rowBytes + j / 8;
-					int bitOffset = j % 8;
-					(bitmap[level])[byteIndex] |= 1 << bitOffset;
-				}
-			}
-		}
-
-		glPushMatrix();
-		glLoadIdentity();
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
-		GLubyte fontColor[4] = TITLE_CHAR_COLOR;
-		GLubyte currColor[4] = TITLE_CHAR_COLOR;
-		currColor[3] = fontColor[3] * 0.125f;
-
-		for (int i = 0; i < 8; i++) {
-			glColor4ubv(currColor);
-			glRasterPos2i(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
-			glBitmap(ftFace->glyph->bitmap.width, ftFace->glyph->bitmap.rows, 0, 0, 0, 0, bitmap[i]);
-			currColor[3] += fontColor[3] * 0.125f;
-		}
-		glDisable(GL_BLEND);
-		glPopMatrix();
-
-		for (int i = 0; i < 8; i++) {
-			free(bitmap[i]);
-		}
+		// TODO : draw strings
+		printGL(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, "ABCDEFGHIJKLMNOPQRSTUVWXYZ%s", "abcdefghijklmnopqrstuvwxyz");
 
 		renderBuffer();
 
