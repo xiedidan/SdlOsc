@@ -15,7 +15,6 @@ void sdlExit(char* msg);
 void initGL(int width, int height);
 void resizeGL(int width, int height);
 void initSDL(int width, int height);
-void eventHandler();
 void renderBuffer();
 
 // draw
@@ -26,8 +25,5 @@ void drawFrame(GLfloat* vertices, GLfloat* colors);
 void startRender();
 void stopRender();
 int renderThreadFunc(void* data);
-
-// helper
-void keyEventHandler(SDL_Keysym* keysym);
 
 #endif // SDL_SERVICE_H

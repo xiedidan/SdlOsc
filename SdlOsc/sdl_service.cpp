@@ -100,14 +100,6 @@ void renderBuffer() {
 	SDL_GL_SwapWindow(sdlWindow);
 }
 
-void eventHandler() {
-
-}
-
-void keyEventHandler(SDL_Keysym* keysym) {
-
-}
-
 void drawRuler() {
 	GLubyte rulerColor[4] = RULER_COLOR;
 
