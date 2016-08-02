@@ -9,6 +9,8 @@
 #include "sdl\include\SDL_opengl.h"
 #include <GL/GL.h>
 #include <GL/glu.h>
+#include "imgui\imgui.h"
+#include "imgui_impl_sdl.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -70,7 +72,7 @@ void resizeGL(int width, int height) {
 	glLoadIdentity();
 }
 
-void initSDL(int width, int height) {
+SDL_Window* initSDL(int width, int height) {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		sdlExit(1, "SDL init failed.");
 	}
@@ -94,6 +96,8 @@ void initSDL(int width, int height) {
 
 	// create GL context per render thread - all use the same sdlWindow
 	// glContext = SDL_GL_CreateContext(sdlWindow);
+
+	return sdlWindow;
 }
 
 void renderBuffer() {
@@ -162,12 +166,19 @@ int renderThreadFunc(void* data) {
 	// now init our local GL context
 	initGL(WINDOW_WIDTH, WINDOW_HEIGHT);
 
+	// init ImGUI
+	ImGui_ImplSdl_Init(sdlWindow);
+
 	// init FreeType2
 	initFreeType();
 	initCharmap();
 	
 	// render loop
 	while (renderFlag) {
+		ImGui_ImplSdl_NewFrame(sdlWindow);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 		drawRuler();
 
 		// TODO : draw frame
@@ -177,6 +188,29 @@ int renderThreadFunc(void* data) {
 		printGL(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 32, "%s", glGetString(GL_VENDOR));
 		printGL(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 64, "%s", glGetString(GL_RENDERER));
 
+		// draw ImGUI
+		{
+			GLbyte clearColor[4] = BACKGROUND_COLOR;
+			ImVec4 clear_color = ImColor(clearColor[0], clearColor[1], clearColor[2]);
+
+			static float f = 0.0f;
+
+			ImGuiWindowFlags window_flags = 0;
+			// window_flags |= ImGuiWindowFlags_NoTitleBar;
+			// window_flags |= ImGuiWindowFlags_ShowBorders;
+			window_flags |= ImGuiWindowFlags_NoResize;
+			// window_flags |= ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoScrollbar;
+			window_flags |= ImGuiWindowFlags_NoCollapse;
+			// window_flags |= ImGuiWindowFlags_MenuBar;
+
+			ImGui::Begin("Control", 0, window_flags);
+			ImGui::SliderFloat("slider", &f, 0.0f, 1.0f);
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::End();
+		}
+
+		ImGui::Render();
 		renderBuffer();
 
 		// 7. frame rate control
@@ -186,9 +220,8 @@ int renderThreadFunc(void* data) {
 		fpsTicks = SDL_GetTicks();
 	}
 
+	// clean up ImGUI
+	ImGui_ImplSdl_Shutdown();
+
 	return 0;
-}
-
-void buildFont() {
-
 }

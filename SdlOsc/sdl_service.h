@@ -14,7 +14,7 @@
 void sdlExit(char* msg);
 void initGL(int width, int height);
 void resizeGL(int width, int height);
-void initSDL(int width, int height);
+SDL_Window* initSDL(int width, int height);
 void renderBuffer();
 
 // draw

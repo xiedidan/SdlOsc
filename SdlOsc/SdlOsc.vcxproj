@@ -153,6 +153,7 @@
     <ClInclude Include="common.h" />
     <ClInclude Include="event_handler.h" />
     <ClInclude Include="ftdi_service.h" />
+    <ClInclude Include="imgui_impl_sdl.h" />
     <ClInclude Include="pipeline.h" />
     <ClInclude Include="sdl_service.h" />
     <ClInclude Include="stdafx.h" />
@@ -164,6 +165,10 @@
   <ItemGroup>
     <ClCompile Include="event_handler.cpp" />
     <ClCompile Include="ftdi_service.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui_impl_sdl.cpp" />
     <ClCompile Include="pipeline.cpp" />
     <ClCompile Include="SdlOsc.cpp" />
     <ClCompile Include="sdl_service.cpp" />

@@ -7,6 +7,8 @@
 #include "sdl\include\SDL.h"
 #include "sdl\include\SDL_timer.h"
 #include "sdl\include\SDL_opengl.h"
+#include "imgui\imgui.h"
+#include "imgui_impl_sdl.h"
 
 /*
 #pragma comment(lib, "opengl32")
@@ -55,7 +57,7 @@ int main(int argc, char *argv[])
 	startPipeline();
 
 	// 5. init SDL
-	initSDL(WINDOW_WIDTH, WINDOW_HEIGHT);
+	SDL_Window* window = initSDL(WINDOW_WIDTH, WINDOW_HEIGHT);
 	atexit(SDL_Quit);
 
 	// 6. TODO : create a thread to render
@@ -64,8 +66,10 @@ int main(int argc, char *argv[])
 	// 7. TODO : handle user inputs - must be in main thread
 	while (!quitFlag) {
 		while (SDL_PollEvent(&event)) {
+			ImGui_ImplSdl_ProcessEvent(&event);
 			eventHandler(&event);
 		}
+
 		Sleep(1);
 	}
 
