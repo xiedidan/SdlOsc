@@ -176,9 +176,9 @@
   <ItemGroup>
     <Library Include="freetype\lib\freetype264.lib" />
     <Library Include="ftdi\lib\ftd2xx.lib" />
-    <Library Include="sdl\lib\x64\SDL2.lib" />
-    <Library Include="sdl\lib\x64\SDL2main.lib" />
-    <Library Include="sdl\lib\x64\SDL2test.lib" />
+    <Library Include="sdl\lib\amd64\SDL2.lib" />
+    <Library Include="sdl\lib\amd64\SDL2main.lib" />
+    <Library Include="sdl\lib\amd64\SDL2test.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

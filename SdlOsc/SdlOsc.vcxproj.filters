@@ -68,9 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="ftdi\lib\ftd2xx.lib" />
-    <Library Include="sdl\lib\x64\SDL2.lib" />
-    <Library Include="sdl\lib\x64\SDL2main.lib" />
-    <Library Include="sdl\lib\x64\SDL2test.lib" />
     <Library Include="freetype\lib\freetype264.lib" />
+    <Library Include="sdl\lib\amd64\SDL2.lib" />
+    <Library Include="sdl\lib\amd64\SDL2main.lib" />
+    <Library Include="sdl\lib\amd64\SDL2test.lib" />
   </ItemGroup>
 </Project>
