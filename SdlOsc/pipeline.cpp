@@ -60,9 +60,12 @@ void startPipeline() {
 
 void stopPipeline() {
 	int retValue;
+	cout << "Stopping pipeline... ";
 
 	pipelineFlag = false;
 	SDL_WaitThread(pipelineThread, &retValue);
+
+	cout << "Done" << endl;
 }
 
 // pipeline thread func
@@ -84,7 +87,10 @@ int pipelineThreadFunc(void* data) {
 
 					// 1. get new frame data
 					byte* frameData = (byte*)malloc(channelBytePerFrame);
-					copyChannelFrameData(frameData, channelBytePerFrame);
+					int res = copyChannelFrameData(frameData, channelBytePerFrame);
+					if (res == 0) {
+						break;
+					}
 
 					if (frameQueue.size() == framePerScreen) {
 						byte* lastFrame = frameQueue.front();
@@ -105,7 +111,10 @@ int pipelineThreadFunc(void* data) {
 
 					// 1. get new frame data
 					byte* frameData = (byte*)malloc(channelBytePerFrame);
-					copyChannelFrameData(frameData, channelBytePerFrame);
+					int res = copyChannelFrameData(frameData, channelBytePerFrame);
+					if (res == 0) {
+						break;
+					}
 
 					// 2. prepare next frame - create vert and color array from frameData
 					// cout << "channelBytePerScreen: " << channelBytePerScreen << endl;
@@ -228,7 +237,10 @@ int copyChannelFrameData(byte* data, int channelBytePerFrame) {
 		// we have to get more data from the queue
 		int moreByte = channelBytePerFrame - lastBufLeftByte;
 		int moreBuf = moreByte / FTDI_READ_BUF_SIZE;
-		getData((byte*)(data + lastBufLeftByte), moreBuf);
+		int res = getDataTimeout((byte*)(data + lastBufLeftByte), moreBuf, PIPELINE_READ_TIMEOUT);
+		if (res == 0) {
+			return 0;
+		}
 
 		// ... and maybe even 1 more block
 		int lastByte = moreByte % FTDI_READ_BUF_SIZE;
@@ -236,7 +248,11 @@ int copyChannelFrameData(byte* data, int channelBytePerFrame) {
 			if (lastBuf == NULL)
 				lastBuf = (byte*)malloc(FTDI_READ_BUF_SIZE);
 
-			getData(lastBuf, 1);
+			res = getDataTimeout(lastBuf, 1, PIPELINE_READ_TIMEOUT);
+			if (res == 0) {
+				return 0;
+			}
+
 			memcpy((byte*)(data + (FTDI_READ_BUF_SIZE - lastByte)), lastBuf, lastByte);
 
 			lastBufOffset = lastByte;

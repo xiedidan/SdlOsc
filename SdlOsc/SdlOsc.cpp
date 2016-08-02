@@ -19,10 +19,12 @@
 #include "ftdi_service.h"
 #include "sdl_service.h"
 #include "pipeline.h"
+#include "event_handler.h"
 
 using namespace std;
 
 bool quitFlag = false;
+SDL_Event event;
 
 int main(int argc, char *argv[])
 {
@@ -61,6 +63,9 @@ int main(int argc, char *argv[])
 
 	// 7. TODO : handle user inputs - must be in main thread
 	while (!quitFlag) {
+		while (SDL_PollEvent(&event)) {
+			eventHandler(&event);
+		}
 		Sleep(1);
 	}
 
@@ -68,6 +73,6 @@ int main(int argc, char *argv[])
 	stopFtdiReadThread();
 	stopPipeline();
 	stopRender();
-    
+
 	return 0;
 }

@@ -5,8 +5,12 @@
 
 #include "event_handler.h"
 
-void eventHandler() {
+extern bool quitFlag;
 
+void eventHandler(SDL_Event* event) {
+	if (event->type == SDL_QUIT) {
+		quitFlag = true;
+	}
 }
 
 void keyEventHandler(SDL_Keysym* keysym) {

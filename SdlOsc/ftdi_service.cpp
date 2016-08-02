@@ -86,9 +86,11 @@ void startFtdiReadThread() {
 
 void stopFtdiReadThread() {
 	int retValue;
+	cout << "Stopping FTDI... ";
 
 	readThreadQuitFlag = true;
 	SDL_WaitThread(readThread, &retValue);
+	cout << "Done" << endl;
 }
 
 int getData(byte* data, int bufCount) {
@@ -100,8 +102,10 @@ int getData(byte* data, int bufCount) {
 	while (bufLeft > 0) {
 		if (!bufferQueue.empty()) {
 			SDL_SemWait(readThreadBufferLock);
+
 			byte* buffer = bufferQueue.front();
 			bufferQueue.pop();
+
 			SDL_SemPost(readThreadBufferLock);
 
 			memcpy((byte*)(data + size), buffer, FTDI_READ_BUF_SIZE);
@@ -119,6 +123,41 @@ int getData(byte* data, int bufCount) {
 	return size;
 }
 
+int getDataTimeout(byte* data, int bufCount, int timeout) {
+	// caller have to malloc data
+
+	int size = 0;
+	int bufLeft = bufCount;
+	int counter = 0;
+
+	while (bufLeft > 0) {
+		if (!bufferQueue.empty()) {
+			SDL_SemWait(readThreadBufferLock);
+
+			byte* buffer = bufferQueue.front();
+			bufferQueue.pop();
+
+			SDL_SemPost(readThreadBufferLock);
+
+			memcpy((byte*)(data + size), buffer, FTDI_READ_BUF_SIZE);
+			free(buffer);
+
+			size += FTDI_READ_BUF_SIZE;
+			bufLeft--;
+		}
+		else {
+			// wait for 1ms - Sleep() only works on Windows, TODO : port to linux
+			Sleep(1);
+			counter++;
+			if (counter >= timeout) {
+				return size;
+			}
+		}
+	}
+
+	return size;
+}
+
 // helper
 int readThreadFunc(void* data) {
 	while (!readThreadQuitFlag) {
@@ -129,14 +168,17 @@ int readThreadFunc(void* data) {
 		//  TODO : what if bytesRead < FTDI_READ_BUF_SIZE or FT_READ < 0?
 		FT_Read(ftHandle, buffer, FTDI_READ_BUF_SIZE, &bytesRead);
 
-		SDL_SemWait(readThreadBufferLock);
+		int res = SDL_SemWaitTimeout(readThreadBufferLock, FTDI_READ_WAIT_TIMEOUT);
+		if (res == SDL_MUTEX_TIMEDOUT) {
+			continue;
+		}
+
 		if (bufferQueue.size() < FTDI_READ_BUF_COUNT)
 			bufferQueue.push(buffer);
 		else
 			free(buffer);
 
 		// cout << "bufferQueue.size(): " << bufferQueue.size() << endl;
-
 		SDL_SemPost(readThreadBufferLock);
 	}
 

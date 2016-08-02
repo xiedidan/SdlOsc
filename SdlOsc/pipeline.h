@@ -3,6 +3,7 @@
 
 #define SAMPLE_DEPTH 8
 #define SAMPLE_MAX_VALUE 256
+#define PIPELINE_READ_TIMEOUT 1000
 
 typedef struct _PIPELINE_THREAD_DATA {
 	int channelBytePerFrame;

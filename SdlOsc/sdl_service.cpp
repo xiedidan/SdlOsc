@@ -148,9 +148,12 @@ void startRender() {
 
 void stopRender() {
 	int retValue;
+	cout << "Stopping render... ";
 
 	renderFlag = false;
 	SDL_WaitThread(renderThread, &retValue);
+
+	cout << "Done" << endl;
 }
 
 int renderThreadFunc(void* data) {
@@ -170,7 +173,9 @@ int renderThreadFunc(void* data) {
 		// TODO : draw frame
 
 		// TODO : draw strings
-		printGL(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, "ABCDEFGHIJKLMNOPQRSTUVWXYZ%s", "abcdefghijklmnopqrstuvwxyz");
+		printGL(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, "OpenGL %s", glGetString(GL_VERSION));
+		printGL(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 32, "%s", glGetString(GL_VENDOR));
+		printGL(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 64, "%s", glGetString(GL_RENDERER));
 
 		renderBuffer();
 

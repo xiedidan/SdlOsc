@@ -7,12 +7,14 @@
 #define FTDI_READ_BUF_SIZE 65536
 #define FTDI_READ_BUF_COUNT 2048
 #define FTDI_DATA_RATE 16384000
+#define FTDI_READ_WAIT_TIMEOUT 1000
 
 bool listFtdiPorts();
 bool openFtdiPort(int index);
 void startFtdiReadThread();
 void stopFtdiReadThread();
 int getData(byte* Data, int bufCount);
+int getDataTimeout(byte* data, int bufCount, int timeout);
 
 // helper
 int readThreadFunc(void* data);
