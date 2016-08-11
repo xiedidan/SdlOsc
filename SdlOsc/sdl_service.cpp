@@ -25,7 +25,7 @@
 using namespace std;
 
 // fps control
-const uint32_t fpsDelay = 1000 / FPS_TARGET;
+uint32_t fpsDelay = 1000 / FPS_TARGET;
 uint32_t fpsTicks = 0;
 
 // render thread variables

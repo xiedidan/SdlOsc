@@ -151,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
+    <ClInclude Include="data_simulator.h" />
     <ClInclude Include="event_handler.h" />
     <ClInclude Include="ftdi_service.h" />
     <ClInclude Include="imgui_impl_sdl.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="data_simulator.cpp" />
     <ClCompile Include="event_handler.cpp" />
     <ClCompile Include="ftdi_service.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
