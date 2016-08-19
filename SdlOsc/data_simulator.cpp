@@ -47,7 +47,7 @@ int simThreadFunc(void* data) {
 		else
 			free(buffer);
 
-		// cout << "bufferQueue.size(): " << bufferQueue.size() << endl;
+		cout << "bufferQueue.size(): " << bufferQueue.size() << endl;
 		SDL_SemPost(readThreadBufferLock);
 
 		// control generating speed

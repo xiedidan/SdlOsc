@@ -23,6 +23,11 @@
 #include "pipeline.h"
 #include "event_handler.h"
 
+#define DATA_SIMULATOR 1
+#ifdef DATA_SIMULATOR
+#include "data_simulator.h"
+#endif
+
 using namespace std;
 
 bool quitFlag = false;
