@@ -164,7 +164,7 @@ int pipelineThreadFunc(void* data) {
 					}
 
 					lastX[i] = (lastX[i] + pixelPerFrame) % WINDOW_WIDTH;
-					cout << "lastX: " << lastX[i] << endl;
+					// cout << "lastX: " << lastX[i] << endl;
 
 					free(frameData);
 				}
@@ -178,7 +178,7 @@ int pipelineThreadFunc(void* data) {
 	return 0;
 }
 
-int getArrays(GLfloat* vertDest, GLbyte* colorDest, int channelNo) {
+int getArrays(GLfloat** vertDest, GLbyte** colorDest, int channelNo) {
 	// caller doesn't have to alloc mem, but have to free
 
 	while (pipelineEmptyFlag) {
@@ -186,11 +186,11 @@ int getArrays(GLfloat* vertDest, GLbyte* colorDest, int channelNo) {
 	}
 
 	// SDL_SemWait(pipelineThreadLock);
-	vertDest = (GLfloat*)malloc(renderPixelCount[channelNo] * 4 * sizeof(GLfloat));
-	memcpy(vertDest, vertices[channelNo], renderPixelCount[channelNo] * 4 * sizeof(GLfloat));
+	*vertDest = (GLfloat*)malloc(renderPixelCount[channelNo] * 4 * sizeof(GLfloat));
+	memcpy(*vertDest, vertices[channelNo], renderPixelCount[channelNo] * 4 * sizeof(GLfloat));
 
-	colorDest = (GLbyte*)malloc(renderPixelCount[channelNo] * 4);
-	memcpy(colorDest, vertices[channelNo], renderPixelCount[channelNo] * 4);
+	*colorDest = (GLbyte*)malloc(renderPixelCount[channelNo] * 4);
+	memcpy(*colorDest, vertices[channelNo], renderPixelCount[channelNo] * 4);
 
 	pipelineEmptyFlag = true;
 	// SDL_SemPost(pipelineThreadLock);

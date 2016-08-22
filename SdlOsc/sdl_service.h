@@ -19,7 +19,7 @@ void renderBuffer();
 
 // draw
 void drawRuler();
-void drawFrame(GLfloat* vertices, GLfloat* colors);
+void drawFrame(GLfloat* vertices, GLfloat* colors, int pixelCount);
 
 // render thread
 void startRender();

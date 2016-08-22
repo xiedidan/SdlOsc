@@ -62,17 +62,17 @@ int main(int argc, char *argv[])
 	startDataSimulatorThread();
 	#endif
 
-	// 4. TODO : create a thread to prepare frame
+	// 4. create a thread to prepare frame
 	startPipeline();
 
 	// 5. init SDL
 	SDL_Window* window = initSDL(WINDOW_WIDTH, WINDOW_HEIGHT);
 	atexit(SDL_Quit);
 
-	// 6. TODO : create a thread to render
+	// 6. create a thread to render
 	startRender();
 
-	// 7. TODO : handle user inputs - must be in main thread
+	// 7. handle user inputs - must be in main thread
 	while (!quitFlag) {
 		while (SDL_PollEvent(&event)) {
 			ImGui_ImplSdl_ProcessEvent(&event);

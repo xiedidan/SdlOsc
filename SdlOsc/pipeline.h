@@ -14,7 +14,7 @@ void stopPipeline();
 
 int pipelineThreadFunc(void* data);
 
-int getArrays(GLfloat* vertDest, GLbyte* colorDest, int channelNo);
+int getArrays(GLfloat** vertDest, GLbyte** colorDest, int channelNo);
 
 // helper
 int getChannelDataRate(int channelCount);

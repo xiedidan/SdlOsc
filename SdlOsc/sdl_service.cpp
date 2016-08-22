@@ -4,6 +4,7 @@
 #pragma comment(lib, "opengl32")
 #pragma comment(lib, "glu32")
 
+#include "ftdi\include\ftd2xx.h" // for byte typedef
 #include "sdl\include\SDL.h"
 #include "sdl\include\SDL_thread.h"
 #include "sdl\include\SDL_opengl.h"
@@ -17,6 +18,7 @@
 #include "string_render.h"
 
 #include "common.h"
+#include "pipeline.h"
 #include "sdl_service.h"
 
 #define THEME_ENERY
@@ -50,6 +52,9 @@ void initGL(int width, int height) {
 		(GLfloat)(clearColor[1] / 255.0f),
 		(GLfloat)(clearColor[2] / 255.0f),
 		(GLfloat)(clearColor[3] / 255.0f));
+
+	glEnable(GL_VERTEX_ARRAY);
+	glEnable(GL_COLOR_ARRAY);
 
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
@@ -138,8 +143,44 @@ void drawRuler() {
 	glPopMatrix();
 }
 
-void drawFrame(GLfloat* vertices, GLfloat* colors) {
+void drawFrame(GLfloat* vertices, GLbyte* colors, int pixelCount) {
+	GLubyte channel1Color[4] = CHANNEL1_COLOR;
+	int renderCount = 0;
+	bool drawingFlag = false;
 
+	// assign arrays
+	glVertexPointer(4, GL_FLOAT, 0, vertices);
+	glColorPointer(4, GL_BYTE, 0, colors);
+
+	// draw
+	glPushMatrix();
+
+	glLineWidth(1.0f);
+	glColor4ubv(channel1Color);
+
+	while (renderCount < pixelCount) {
+		if (!drawingFlag) {
+			glBegin(GL_LINES);
+			glLoadIdentity();
+			drawingFlag = true;
+		}
+
+		if (renderCount > 0 && vertices[renderCount * 4] < vertices[(renderCount - 1) * 4]) {
+			glEnd();
+			drawingFlag = false;
+		}
+		else {
+			glVertex2f(vertices[renderCount * 4], vertices[renderCount * 4 + 1]);
+		}
+
+		renderCount++;
+	} // while
+
+	if (drawingFlag)
+		glEnd();
+	
+
+	glPopMatrix();
 }
 
 // render interface
@@ -181,12 +222,19 @@ int renderThreadFunc(void* data) {
 
 		drawRuler();
 
-		// TODO : draw frame
+		// get next frame from pipeline
+		GLfloat* vertArr = NULL;
+		GLbyte* colorArr = NULL;
+		int pixelCount = getArrays(&vertArr, &colorArr, 0);
+		// draw frame
+		drawFrame(vertArr, colorArr, pixelCount);
+		free(vertArr);
+		free(colorArr);
 
 		// TODO : draw strings
-		printGL(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, "OpenGL %s", glGetString(GL_VERSION));
-		printGL(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 32, "%s", glGetString(GL_VENDOR));
-		printGL(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 64, "%s", glGetString(GL_RENDERER));
+		printGL(WINDOW_WIDTH / 2 + 400, 96, "OpenGL %s", glGetString(GL_VERSION));
+		printGL(WINDOW_WIDTH / 2 + 400, 64, "%s", glGetString(GL_VENDOR));
+		printGL(WINDOW_WIDTH / 2 + 400, 32, "%s", glGetString(GL_RENDERER));
 
 		// draw ImGUI
 		{
