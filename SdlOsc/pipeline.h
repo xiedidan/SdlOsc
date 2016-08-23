@@ -5,6 +5,9 @@
 #define SAMPLE_MAX_VALUE 256
 #define PIPELINE_READ_TIMEOUT 1000
 
+#define VERTEX_DIM 3
+#define COLOR_DIM 4
+
 typedef struct _PIPELINE_THREAD_DATA {
 	int channelBytePerFrame;
 } PIPELINE_THREAD_DATA;
@@ -14,7 +17,7 @@ void stopPipeline();
 
 int pipelineThreadFunc(void* data);
 
-int getArrays(GLfloat** vertDest, GLbyte** colorDest, int channelNo);
+int getArrays(GLfloat** vertDest, int channelNo);
 
 // helper
 int getChannelDataRate(int channelCount);

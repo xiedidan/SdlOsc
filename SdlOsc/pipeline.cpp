@@ -40,7 +40,6 @@ bool pipelineEmptyFlag = true;
 
 // vert and color arrays
 GLfloat* vertices[2] = { NULL, NULL };
-GLbyte* colors[2] = { NULL, NULL };
 int renderPixelCount[2] = { 0, 0 };
 
 // pipeline interface
@@ -126,12 +125,7 @@ int pipelineThreadFunc(void* data) {
 						free(vertices[i]);
 						vertices[i] = NULL;
 					}
-					if (colors[i] != NULL) {
-						free(colors[i]);
-						colors[i] = NULL;
-					}
-					vertices[i] = (GLfloat*)malloc(pixelPerFrame * 4 * sizeof(GLfloat));
-					colors[i] = (GLbyte*)malloc(pixelPerFrame * 4);
+					vertices[i] = (GLfloat*)malloc(pixelPerFrame * VERTEX_DIM * sizeof(GLfloat));
 
 					for (int j = 0; j < pixelPerFrame; j++) {
 						// compute pixel value
@@ -142,23 +136,11 @@ int pipelineThreadFunc(void* data) {
 						int pixelAverage = pixelSum / channelBytePerPixel;
 
 						// SDL_SemWait(pipelineThreadLock);
-						(vertices[i])[j * 4] = (GLfloat)((lastX[i] + j) % WINDOW_WIDTH); // X
-						(vertices[i])[j * 4 + 1] = (GLfloat)pixelAverage / (GLfloat)SAMPLE_MAX_VALUE * WINDOW_HEIGHT; // Y
-						(vertices[i])[j * 4 + 2] = (GLfloat)0.0f; // Z
-						(vertices[i])[j * 4 + 3] = (GLfloat)0.0f; // W
+						(vertices[i])[j * VERTEX_DIM] = (GLfloat)((lastX[i] + j) % WINDOW_WIDTH); // X
+						(vertices[i])[j * VERTEX_DIM + 1] = (GLfloat)pixelAverage / (GLfloat)SAMPLE_MAX_VALUE * WINDOW_HEIGHT; // Y
+						(vertices[i])[j * VERTEX_DIM + 2] = (GLfloat)0.0f; // Z
+						// (vertices[i])[j * 4 + 3] = (GLfloat)0.0f; // W
 
-						if (i == 0) {
-							(colors[i])[j * 4] = channel1Color[0]; // R
-							(colors[i])[j * 4 + 1] = channel1Color[1]; // G
-							(colors[i])[j * 4 + 2] = channel1Color[2]; // B
-							(colors[i])[j * 4 + 3] = channel1Color[3]; // A
-						}
-						else {
-							(colors[i])[j * 4] = channel2Color[0]; // R
-							(colors[i])[j * 4 + 1] = channel2Color[1]; // G
-							(colors[i])[j * 4 + 2] = channel2Color[2]; // B
-							(colors[i])[j * 4 + 3] = channel2Color[3]; // A
-						}
 						pipelineEmptyFlag = false;
 						// SDL_SemPost(pipelineThreadLock);
 					}
@@ -178,7 +160,7 @@ int pipelineThreadFunc(void* data) {
 	return 0;
 }
 
-int getArrays(GLfloat** vertDest, GLbyte** colorDest, int channelNo) {
+int getArrays(GLfloat** vertDest, int channelNo) {
 	// caller doesn't have to alloc mem, but have to free
 
 	while (pipelineEmptyFlag) {
@@ -186,11 +168,8 @@ int getArrays(GLfloat** vertDest, GLbyte** colorDest, int channelNo) {
 	}
 
 	// SDL_SemWait(pipelineThreadLock);
-	*vertDest = (GLfloat*)malloc(renderPixelCount[channelNo] * 4 * sizeof(GLfloat));
-	memcpy(*vertDest, vertices[channelNo], renderPixelCount[channelNo] * 4 * sizeof(GLfloat));
-
-	*colorDest = (GLbyte*)malloc(renderPixelCount[channelNo] * 4);
-	memcpy(*colorDest, vertices[channelNo], renderPixelCount[channelNo] * 4);
+	*vertDest = (GLfloat*)malloc(renderPixelCount[channelNo] * VERTEX_DIM * sizeof(GLfloat));
+	memcpy(*vertDest, vertices[channelNo], renderPixelCount[channelNo] * VERTEX_DIM * sizeof(GLfloat));
 
 	pipelineEmptyFlag = true;
 	// SDL_SemPost(pipelineThreadLock);

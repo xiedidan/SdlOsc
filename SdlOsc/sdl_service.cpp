@@ -53,9 +53,6 @@ void initGL(int width, int height) {
 		(GLfloat)(clearColor[2] / 255.0f),
 		(GLfloat)(clearColor[3] / 255.0f));
 
-	glEnable(GL_VERTEX_ARRAY);
-	glEnable(GL_COLOR_ARRAY);
-
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -143,21 +140,22 @@ void drawRuler() {
 	glPopMatrix();
 }
 
-void drawFrame(GLfloat* vertices, GLbyte* colors, int pixelCount) {
+void drawFrame(GLfloat* vertices, int pixelCount) {
 	GLubyte channel1Color[4] = CHANNEL1_COLOR;
 	int renderCount = 0;
-	bool drawingFlag = false;
-
-	// assign arrays
-	glVertexPointer(4, GL_FLOAT, 0, vertices);
-	glColorPointer(4, GL_BYTE, 0, colors);
+	int lastRenderCount = 0;
+	bool finishFlag = false;
 
 	// draw
 	glPushMatrix();
 
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(VERTEX_DIM, GL_FLOAT, 0, vertices);
+
 	glLineWidth(1.0f);
 	glColor4ubv(channel1Color);
 
+	/* render method 1 - glVertex2f()
 	while (renderCount < pixelCount) {
 		if (!drawingFlag) {
 			glBegin(GL_LINES);
@@ -165,12 +163,12 @@ void drawFrame(GLfloat* vertices, GLbyte* colors, int pixelCount) {
 			drawingFlag = true;
 		}
 
-		if (renderCount > 0 && vertices[renderCount * 4] < vertices[(renderCount - 1) * 4]) {
+		if (renderCount > 0 && vertices[renderCount * VERTEX_DIM] < vertices[(renderCount - 1) * VERTEX_DIM]) {
 			glEnd();
 			drawingFlag = false;
 		}
 		else {
-			glVertex2f(vertices[renderCount * 4], vertices[renderCount * 4 + 1]);
+			glVertex2f(vertices[renderCount * VERTEX_DIM], vertices[renderCount * VERTEX_DIM + 1]);
 		}
 
 		renderCount++;
@@ -178,7 +176,34 @@ void drawFrame(GLfloat* vertices, GLbyte* colors, int pixelCount) {
 
 	if (drawingFlag)
 		glEnd();
-	
+	*/
+
+	/* render method 2 - glArrayElement()
+	glBegin(GL_LINES);
+	for (int i = 0; i < pixelCount; i++)
+		glArrayElement(i);
+	glEnd();
+	*/
+
+	// render method 3 - glDrawArrays()
+	while (renderCount < pixelCount) {
+		// look for screen edge
+		if (renderCount > 0 && vertices[renderCount * VERTEX_DIM] < vertices[(renderCount - 1) * VERTEX_DIM]) {
+			// got edge
+			glDrawArrays(GL_LINES, lastRenderCount, renderCount - lastRenderCount);
+			lastRenderCount = renderCount;
+			finishFlag = true;
+		}
+		else {
+			finishFlag = false;
+		}
+
+		renderCount++;
+	}
+
+	if (!finishFlag) {
+		glDrawArrays(GL_LINES, lastRenderCount, renderCount - lastRenderCount);
+	}
 
 	glPopMatrix();
 }
@@ -224,12 +249,10 @@ int renderThreadFunc(void* data) {
 
 		// get next frame from pipeline
 		GLfloat* vertArr = NULL;
-		GLbyte* colorArr = NULL;
-		int pixelCount = getArrays(&vertArr, &colorArr, 0);
+		int pixelCount = getArrays(&vertArr, 0);
 		// draw frame
-		drawFrame(vertArr, colorArr, pixelCount);
+		drawFrame(vertArr, pixelCount);
 		free(vertArr);
-		free(colorArr);
 
 		// TODO : draw strings
 		printGL(WINDOW_WIDTH / 2 + 400, 96, "OpenGL %s", glGetString(GL_VERSION));
