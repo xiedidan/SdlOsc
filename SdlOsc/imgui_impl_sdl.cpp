@@ -9,7 +9,8 @@
 #include "stdafx.h"
 #include "sdl\include\SDL.h"
 #include "sdl\include\SDL_syswm.h"
-#include "sdl\include\SDL_opengl.h"
+// #include "sdl\include\SDL_opengl.h"
+#include "glew\include\glew.h"
 #include "imgui\imgui.h"
 #include "imgui_impl_sdl.h"
 

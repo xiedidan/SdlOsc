@@ -48,10 +48,13 @@
     <ClInclude Include="event_handler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imgui_impl_sdl.h">
+    <ClInclude Include="data_simulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="data_simulator.h">
+    <ClInclude Include="glew\include\glew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_sdl_gl3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -77,9 +80,6 @@
     <ClCompile Include="event_handler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_impl_sdl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="imgui\imgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -92,6 +92,9 @@
     <ClCompile Include="data_simulator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="imgui_impl_sdl_gl3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="ftdi\lib\ftd2xx.lib" />
@@ -99,5 +102,6 @@
     <Library Include="sdl\lib\amd64\SDL2.lib" />
     <Library Include="sdl\lib\amd64\SDL2main.lib" />
     <Library Include="sdl\lib\amd64\SDL2test.lib" />
+    <Library Include="glew\lib\amd64\glew32.lib" />
   </ItemGroup>
 </Project>

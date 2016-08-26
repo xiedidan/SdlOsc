@@ -1,17 +1,18 @@
 #include "stdafx.h"
 #include <iostream>
 
+#pragma comment(lib, "glew32")
 #pragma comment(lib, "opengl32")
 #pragma comment(lib, "glu32")
 
 #include "ftdi\include\ftd2xx.h" // for byte typedef
 #include "sdl\include\SDL.h"
 #include "sdl\include\SDL_thread.h"
-#include "sdl\include\SDL_opengl.h"
-#include <GL/GL.h>
-#include <GL/glu.h>
+// #include "sdl\include\SDL_opengl.h"
+#include "glew\include\glew.h"
+#include "glew\include\wglew.h"
 #include "imgui\imgui.h"
-#include "imgui_impl_sdl.h"
+#include "imgui_impl_sdl_gl3.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -44,6 +45,8 @@ void sdlExit(int exitCode, char* msg) {
 }
 
 void initGL(int width, int height) {
+	glewInit();
+
 	SDL_GL_SetSwapInterval(1);
 
 	GLbyte clearColor[4] = BACKGROUND_COLOR;
@@ -233,7 +236,7 @@ int renderThreadFunc(void* data) {
 	initGL(WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	// init ImGUI
-	ImGui_ImplSdl_Init(sdlWindow);
+	ImGui_ImplSdlGL3_Init(sdlWindow);
 
 	// init FreeType2
 	initFreeType();
@@ -241,7 +244,7 @@ int renderThreadFunc(void* data) {
 	
 	// render loop
 	while (renderFlag) {
-		ImGui_ImplSdl_NewFrame(sdlWindow);
+		ImGui_ImplSdlGL3_NewFrame(sdlWindow);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -292,7 +295,7 @@ int renderThreadFunc(void* data) {
 	}
 
 	// clean up ImGUI
-	ImGui_ImplSdl_Shutdown();
+	ImGui_ImplSdlGL3_Shutdown();
 
 	return 0;
 }

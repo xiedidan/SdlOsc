@@ -6,16 +6,10 @@
 #include "ftdi\include\ftd2xx.h"
 #include "sdl\include\SDL.h"
 #include "sdl\include\SDL_timer.h"
-#include "sdl\include\SDL_opengl.h"
+// #include "sdl\include\SDL_opengl.h"
+#include "glew\include\glew.h"
 #include "imgui\imgui.h"
-#include "imgui_impl_sdl.h"
-
-/*
-#pragma comment(lib, "opengl32")
-#pragma comment(lib, "glu32")
-#include <GL/gl.h>
-#include <GL/glu.h>
-*/
+#include "imgui_impl_sdl_gl3.h"
 
 #include "common.h"
 #include "ftdi_service.h"
@@ -75,7 +69,7 @@ int main(int argc, char *argv[])
 	// 7. handle user inputs - must be in main thread
 	while (!quitFlag) {
 		while (SDL_PollEvent(&event)) {
-			ImGui_ImplSdl_ProcessEvent(&event);
+			ImGui_ImplSdlGL3_ProcessEvent(&event);
 			eventHandler(&event);
 		}
 
