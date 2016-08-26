@@ -8,9 +8,7 @@
 #include "ftdi\include\ftd2xx.h" // for byte typedef
 #include "sdl\include\SDL.h"
 #include "sdl\include\SDL_thread.h"
-// #include "sdl\include\SDL_opengl.h"
 #include "glew\include\glew.h"
-#include "glew\include\wglew.h"
 #include "imgui\imgui.h"
 #include "imgui_impl_sdl_gl3.h"
 
@@ -45,7 +43,11 @@ void sdlExit(int exitCode, char* msg) {
 }
 
 void initGL(int width, int height) {
-	glewInit();
+	GLenum ret = glewInit();
+	if (ret != GLEW_OK) {
+		SDL_Quit();
+		exit(EXIT_GLEW_INIT_FAILED);
+	}
 
 	SDL_GL_SetSwapInterval(1);
 
@@ -82,9 +84,10 @@ SDL_Window* initSDL(int width, int height) {
 		sdlExit(1, "SDL init failed.");
 	}
 
-	// require OpenGL 3.2
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	// require at least OpenGL 3.0 Compatibility Profile
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
@@ -94,7 +97,7 @@ SDL_Window* initSDL(int width, int height) {
 		SDL_WINDOWPOS_CENTERED,
 		width,
 		height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if (!sdlWindow) {
 		sdlExit(2, "SDL window creation failed.");
 	}
@@ -278,9 +281,9 @@ int renderThreadFunc(void* data) {
 			window_flags |= ImGuiWindowFlags_NoCollapse;
 			// window_flags |= ImGuiWindowFlags_MenuBar;
 
-			ImGui::Begin("Control", 0, window_flags);
-			ImGui::SliderFloat("slider", &f, 0.0f, 1.0f);
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::Begin("Perf. Counter", 0, window_flags);
+			// ImGui::SliderFloat("slider", &f, 0.0f, 1.0f);
+			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
 		}
 
@@ -288,10 +291,12 @@ int renderThreadFunc(void* data) {
 		renderBuffer();
 
 		// 7. frame rate control
+		/*
 		if (SDL_GetTicks() - fpsTicks < fpsDelay)
 			SDL_Delay(fpsDelay - SDL_GetTicks() + fpsTicks);
 
 		fpsTicks = SDL_GetTicks();
+		*/
 	}
 
 	// clean up ImGUI

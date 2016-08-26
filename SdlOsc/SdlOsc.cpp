@@ -6,7 +6,6 @@
 #include "ftdi\include\ftd2xx.h"
 #include "sdl\include\SDL.h"
 #include "sdl\include\SDL_timer.h"
-// #include "sdl\include\SDL_opengl.h"
 #include "glew\include\glew.h"
 #include "imgui\imgui.h"
 #include "imgui_impl_sdl_gl3.h"
@@ -37,7 +36,7 @@ int main(int argc, char *argv[])
 	cout << endl;
 	if (!listFtdiPorts()) {
 		cout << "Exiting." << endl;
-		return 1;
+		return EXIT_NO_FTDI_DEVICE;
 	}
 
 	cout << endl << "Input port index you want to use: ";
@@ -47,7 +46,7 @@ int main(int argc, char *argv[])
 	// 2. open selected port
 	if (!openFtdiPort(index)) {
 		cout << "Exiting." << endl;
-		return 2;
+		return EXIT_FTDI_OPEN_FAILED;
 	}
 
 	// 3. create a thread to read usb data
@@ -81,5 +80,5 @@ int main(int argc, char *argv[])
 	stopPipeline();
 	stopRender();
 
-	return 0;
+	return EXIT_SUCCESS;
 }
