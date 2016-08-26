@@ -270,8 +270,6 @@ int renderThreadFunc(void* data) {
 			GLbyte clearColor[4] = BACKGROUND_COLOR;
 			ImVec4 clear_color = ImColor(clearColor[0], clearColor[1], clearColor[2]);
 
-			static float f = 0.0f;
-
 			ImGuiWindowFlags window_flags = 0;
 			// window_flags |= ImGuiWindowFlags_NoTitleBar;
 			// window_flags |= ImGuiWindowFlags_ShowBorders;
@@ -282,7 +280,6 @@ int renderThreadFunc(void* data) {
 			// window_flags |= ImGuiWindowFlags_MenuBar;
 
 			ImGui::Begin("Perf. Counter", 0, window_flags);
-			// ImGui::SliderFloat("slider", &f, 0.0f, 1.0f);
 			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
 		}
