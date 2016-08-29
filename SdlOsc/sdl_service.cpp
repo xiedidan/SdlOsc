@@ -267,6 +267,8 @@ int renderThreadFunc(void* data) {
 		printGL(WINDOW_WIDTH / 2 + 400, 64, "%s", glGetString(GL_VENDOR));
 		printGL(WINDOW_WIDTH / 2 + 400, 32, "%s", glGetString(GL_RENDERER));
 
+		drawCursor();
+
 		// draw ImGUI
 		{
 			GLbyte clearColor[4] = BACKGROUND_COLOR;
@@ -288,8 +290,6 @@ int renderThreadFunc(void* data) {
 		}
 
 		ImGui::Render();
-
-		drawCursor();
 
 		renderBuffer();
 

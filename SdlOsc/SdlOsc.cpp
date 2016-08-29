@@ -16,6 +16,7 @@
 #include "sdl_service.h"
 #include "pipeline.h"
 #include "event_handler.h"
+#include "cursor_service.h"
 
 #define DATA_SIMULATOR 1
 #ifdef DATA_SIMULATOR
@@ -63,10 +64,13 @@ int main(int argc, char *argv[])
 	SDL_Window* window = initSDL(WINDOW_WIDTH, WINDOW_HEIGHT);
 	atexit(SDL_Quit);
 
-	// 6. create a thread to render
+	// 6. start mouse capture
+	startCursorThread();
+
+	// 7. create a thread to render
 	startRender();
 
-	// 7. handle user inputs - must be in main thread
+	// 8. handle user inputs - must be in main thread
 	while (!quitFlag) {
 		while (SDL_PollEvent(&event)) {
 			ImGui_Service_ProcessEvent(&event);
@@ -76,9 +80,10 @@ int main(int argc, char *argv[])
 		Sleep(1);
 	}
 
-	// 8. clean up
+	// 9. clean up
 	stopFtdiReadThread();
 	stopPipeline();
+	stopCursorThread();
 	stopRender();
 
 	return EXIT_SUCCESS;

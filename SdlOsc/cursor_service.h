@@ -1,13 +1,15 @@
 #ifndef CURSOR_SERVICE_H
 #define CURSOR_SERVICE_H
 
-extern int mouseX, mouseY;
-extern Uint32 mouseButtonMask;
+extern volatile int mouseX, mouseY;
+extern volatile Uint32 mouseButtonMask;
 
 // user interface
+void startCursorThread();
+void stopCursorThread();
 void drawCursor();
 
 // helper
-void cursorHandler();
+int cursorThreadFunc(void* data);
 
 #endif
