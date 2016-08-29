@@ -19,6 +19,7 @@
 
 #include "common.h"
 #include "pipeline.h"
+#include "cursor_service.h"
 #include "sdl_service.h"
 
 #define THEME_ENERY
@@ -282,10 +283,13 @@ int renderThreadFunc(void* data) {
 
 			ImGui::Begin("Perf. Counter", 0, window_flags);
 			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::Text("Mouse Pos: (%d, %d)", mouseX, mouseY);
 			ImGui::End();
 		}
 
 		ImGui::Render();
+
+		drawCursor();
 
 		renderBuffer();
 

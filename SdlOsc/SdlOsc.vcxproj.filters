@@ -63,6 +63,9 @@
     <ClInclude Include="imgui_impl_sdl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cursor_service.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -105,6 +108,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="imgui_impl_sdl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cursor_service.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
