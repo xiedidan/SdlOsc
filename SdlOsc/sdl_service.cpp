@@ -9,8 +9,9 @@
 #include "sdl\include\SDL.h"
 #include "sdl\include\SDL_thread.h"
 #include "glew\include\glew.h"
+
 #include "imgui\imgui.h"
-#include "imgui_impl_sdl_gl3.h"
+#include "imgui_service.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -239,15 +240,15 @@ int renderThreadFunc(void* data) {
 	initGL(WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	// init ImGUI
-	ImGui_ImplSdlGL3_Init(sdlWindow);
-
+	ImGui_Service_Init(sdlWindow);
+	
 	// init FreeType2
 	initFreeType();
 	initCharmap();
 	
 	// render loop
 	while (renderFlag) {
-		ImGui_ImplSdlGL3_NewFrame(sdlWindow);
+		ImGui_Service_NewFrame(sdlWindow);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -285,6 +286,7 @@ int renderThreadFunc(void* data) {
 		}
 
 		ImGui::Render();
+
 		renderBuffer();
 
 		// 7. frame rate control
@@ -297,7 +299,7 @@ int renderThreadFunc(void* data) {
 	}
 
 	// clean up ImGUI
-	ImGui_ImplSdlGL3_Shutdown();
+	ImGui_Service_Shutdown();
 
 	return 0;
 }

@@ -7,8 +7,9 @@
 #include "sdl\include\SDL.h"
 #include "sdl\include\SDL_timer.h"
 #include "glew\include\glew.h"
+
 #include "imgui\imgui.h"
-#include "imgui_impl_sdl_gl3.h"
+#include "imgui_service.h"
 
 #include "common.h"
 #include "ftdi_service.h"
@@ -68,7 +69,7 @@ int main(int argc, char *argv[])
 	// 7. handle user inputs - must be in main thread
 	while (!quitFlag) {
 		while (SDL_PollEvent(&event)) {
-			ImGui_ImplSdlGL3_ProcessEvent(&event);
+			ImGui_Service_ProcessEvent(&event);
 			eventHandler(&event);
 		}
 
