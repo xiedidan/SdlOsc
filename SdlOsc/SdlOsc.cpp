@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 	startPipeline();
 
 	// 5. init SDL
-	SDL_Window* window = initSDL(WINDOW_WIDTH, WINDOW_HEIGHT);
+	SDL_Window* window = initSDL(windowWidth, windowHeight);
 	atexit(SDL_Quit);
 
 	// 6. start mouse capture

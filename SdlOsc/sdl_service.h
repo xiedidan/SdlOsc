@@ -2,14 +2,15 @@
 #define SDL_SERVICE_H
 
 #define FPS_TARGET 50
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
 
 #define RULER_X_COUNT 13
 #define RULER_Y_COUNT 7
 
-#define DIV_WIDTH WINDOW_WIDTH / RULER_X_COUNT
-#define DIV_HEIGHT WINDOW_HEIGHT / RULER_Y_COUNT
+extern int windowWidth;
+extern int windowHeight;
+
+extern int divWidth;
+extern int divHeight;
 
 void sdlExit(char* msg);
 void initGL(int width, int height);

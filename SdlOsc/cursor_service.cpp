@@ -34,14 +34,14 @@ void drawCursor() {
 	glBegin(GL_LINES);
 
 	// horizontal
-	double y = (double)WINDOW_HEIGHT - mouseY - 1.0f;
+	double y = (double)windowHeight - mouseY - 1.0f;
 	glVertex3d(0, y, (GLfloat)0.5f);
-	glVertex3d(WINDOW_WIDTH, y, (GLfloat)0.5f);
+	glVertex3d(windowWidth, y, (GLfloat)0.5f);
 
 	// vertical
 	double x = mouseX + 1.0f;
 	glVertex3d(x, 0, (GLfloat)0.5f);
-	glVertex3d(x, WINDOW_HEIGHT, (GLfloat)0.5f);
+	glVertex3d(x, windowHeight, (GLfloat)0.5f);
 
 	glEnd();
 	glDisable(GL_LINE_STIPPLE);

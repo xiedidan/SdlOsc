@@ -117,7 +117,7 @@ int pipelineThreadFunc(void* data) {
 
 					// 2. prepare next frame - create vert and color array from frameData
 					// cout << "channelBytePerScreen: " << channelBytePerScreen << endl;
-					int channelBytePerPixel = channelBytePerScreen / WINDOW_WIDTH;
+					int channelBytePerPixel = channelBytePerScreen / windowWidth;
 					int pixelPerFrame = channelBytePerFrame / channelBytePerPixel;
 					renderPixelCount[i] = pixelPerFrame;
 
@@ -136,8 +136,8 @@ int pipelineThreadFunc(void* data) {
 						int pixelAverage = pixelSum / channelBytePerPixel;
 
 						// SDL_SemWait(pipelineThreadLock);
-						(vertices[i])[j * VERTEX_DIM] = (GLfloat)((lastX[i] + j) % WINDOW_WIDTH); // X
-						(vertices[i])[j * VERTEX_DIM + 1] = (GLfloat)pixelAverage / (GLfloat)SAMPLE_MAX_VALUE * WINDOW_HEIGHT; // Y
+						(vertices[i])[j * VERTEX_DIM] = (GLfloat)((lastX[i] + j) % windowWidth); // X
+						(vertices[i])[j * VERTEX_DIM + 1] = (GLfloat)pixelAverage / (GLfloat)SAMPLE_MAX_VALUE * windowHeight; // Y
 						(vertices[i])[j * VERTEX_DIM + 2] = (GLfloat)0.0f; // Z
 						// (vertices[i])[j * 4 + 3] = (GLfloat)0.0f; // W
 
@@ -145,7 +145,7 @@ int pipelineThreadFunc(void* data) {
 						// SDL_SemPost(pipelineThreadLock);
 					}
 
-					lastX[i] = (lastX[i] + pixelPerFrame) % WINDOW_WIDTH;
+					lastX[i] = (lastX[i] + pixelPerFrame) % windowWidth;
 					// cout << "lastX: " << lastX[i] << endl;
 
 					free(frameData);

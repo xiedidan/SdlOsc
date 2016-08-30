@@ -27,6 +27,12 @@
 
 using namespace std;
 
+// global
+int windowWidth = 1280;
+int windowHeight = 720;
+int divWidth = windowWidth / RULER_X_COUNT;
+int divHeight = windowHeight / RULER_Y_COUNT;
+
 // fps control
 uint32_t fpsDelay = 1000 / FPS_TARGET;
 uint32_t fpsTicks = 0;
@@ -79,12 +85,21 @@ void resizeGL(int width, int height) {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+	windowWidth = width;
+	windowHeight = height;
+
+	divWidth = windowWidth / RULER_X_COUNT;
+	divHeight = windowHeight / RULER_Y_COUNT;
 }
 
 SDL_Window* initSDL(int width, int height) {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		sdlExit(1, "SDL init failed.");
 	}
+
+	divWidth = windowWidth / RULER_X_COUNT;
+	divHeight = windowHeight / RULER_Y_COUNT;
 
 	// require at least OpenGL 3.0 Compatibility Profile
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -99,7 +114,7 @@ SDL_Window* initSDL(int width, int height) {
 		SDL_WINDOWPOS_CENTERED,
 		width,
 		height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (!sdlWindow) {
 		sdlExit(2, "SDL window creation failed.");
 	}
@@ -128,21 +143,21 @@ void drawRuler() {
 	glBegin(GL_LINES);
 	for (int i = 1; i < RULER_Y_COUNT + 1; i++) {
 		if (i != (RULER_Y_COUNT + 1) / 2) {
-			glVertex3d(0, WINDOW_HEIGHT * i / (RULER_Y_COUNT + 1), -1.0f);
-			glVertex3d(WINDOW_WIDTH, WINDOW_HEIGHT * i / (RULER_Y_COUNT + 1), -1.0f);
+			glVertex3d(0, windowHeight * i / (RULER_Y_COUNT + 1), -1.0f);
+			glVertex3d(windowWidth, windowHeight * i / (RULER_Y_COUNT + 1), -1.0f);
 		}
 	}
 
 	for (int i = 1; i < RULER_X_COUNT + 1; i++) {
-			glVertex3d(WINDOW_WIDTH * i / (RULER_X_COUNT + 1), 0, -1.0f);
-			glVertex3d(WINDOW_WIDTH * i / (RULER_X_COUNT + 1), WINDOW_HEIGHT, -1.0f);
+			glVertex3d(windowWidth * i / (RULER_X_COUNT + 1), 0, -1.0f);
+			glVertex3d(windowWidth * i / (RULER_X_COUNT + 1), windowHeight, -1.0f);
 	}
 	glEnd();
 	glDisable(GL_LINE_STIPPLE);
 
 	glBegin(GL_LINES);
-	glVertex3d(0, WINDOW_HEIGHT / 2, -1.0f);
-	glVertex3d(WINDOW_WIDTH, WINDOW_HEIGHT / 2, -1.0f);
+	glVertex3d(0, windowHeight / 2, -1.0f);
+	glVertex3d(windowWidth, windowHeight / 2, -1.0f);
 	glEnd();
 
 	glPopMatrix();
@@ -238,7 +253,7 @@ int renderThreadFunc(void* data) {
 	// must create local GL context in render thread, use main thread created sdlWindow
 	SDL_GLContext glContext = SDL_GL_CreateContext(sdlWindow);
 	// now init our local GL context
-	initGL(WINDOW_WIDTH, WINDOW_HEIGHT);
+	initGL(windowWidth, windowHeight);
 
 	// init ImGUI
 	ImGui_Service_Init(sdlWindow);
@@ -249,6 +264,13 @@ int renderThreadFunc(void* data) {
 	
 	// render loop
 	while (renderFlag) {
+		// check resize
+		int w = 0;
+		int h = 0;
+		SDL_GL_GetDrawableSize(sdlWindow, &w, &h);
+		if (windowWidth != w || windowHeight != h)
+			resizeGL(w, h);
+
 		ImGui_Service_NewFrame(sdlWindow);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -263,9 +285,9 @@ int renderThreadFunc(void* data) {
 		free(vertArr);
 
 		// TODO : draw strings
-		printGL(WINDOW_WIDTH / 2 + 400, 96, "OpenGL %s", glGetString(GL_VERSION));
-		printGL(WINDOW_WIDTH / 2 + 400, 64, "%s", glGetString(GL_VENDOR));
-		printGL(WINDOW_WIDTH / 2 + 400, 32, "%s", glGetString(GL_RENDERER));
+		printGL(windowWidth / 2 + 400, 96, "OpenGL %s", glGetString(GL_VERSION));
+		printGL(windowWidth / 2 + 400, 64, "%s", glGetString(GL_VENDOR));
+		printGL(windowWidth / 2 + 400, 32, "%s", glGetString(GL_RENDERER));
 
 		drawCursor();
 
