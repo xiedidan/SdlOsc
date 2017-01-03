@@ -21,8 +21,7 @@ extern SDL_sem* readThreadBufferLock;
 uint32_t simBufferDelay =  1000 * FTDI_READ_BUF_SIZE / FTDI_DATA_RATE;
 uint32_t simTicks = 0;
 
-uint32_t simBufRate = FTDI_DATA_RATE / FTDI_READ_BUF_SIZE;
-uint32_t simSignalFreq = 1000;
+uint32_t simSignalFreq = 1280;
 
 void startDataSimulatorThread(SIM_DATA_TYPE type) {
 	SIM_DATA_TYPE* pType = (SIM_DATA_TYPE*)malloc(sizeof(SIM_DATA_TYPE));
@@ -39,12 +38,17 @@ int simThreadFunc(void* data) {
 		free(data);
 
 	while (!simThreadQuitFlag) {
-		byte* buffer = (byte*)malloc(FTDI_READ_BUF_SIZE);
+		byte* buffer;
 		int res;
+		int bufferCounter = 0;
+		uint32_t tick = 0;
+		double w = 2 * (double)M_PI / ((double)FTDI_DATA_RATE / (double)simSignalFreq);
 
 		switch (type) {
 		case Random:
 			// create random buffer
+			buffer = (byte*)malloc(FTDI_READ_BUF_SIZE);
+
 			srand(time(NULL));
 			for (int i = 0; i < FTDI_READ_BUF_SIZE; i++) {
 				buffer[i] = rand() % 256;
@@ -57,6 +61,8 @@ int simThreadFunc(void* data) {
 
 			if (bufferQueue.size() < FTDI_READ_BUF_COUNT)
 				bufferQueue.push(buffer);
+			else
+				free(buffer);
 
 			// cout << "simThreadFunc bufferQueue.size(): " << bufferQueue.size() << endl;
 			SDL_SemPost(readThreadBufferLock);
@@ -68,11 +74,38 @@ int simThreadFunc(void* data) {
 			break;
 
 		case Sine:
-			buffer[i] = sin(w * t);
+			buffer = (byte*)malloc(FTDI_READ_BUF_SIZE);
+
+			for (int i = 0; i < FTDI_READ_BUF_SIZE; i++) {
+				buffer[i] = 64 * sin(w * tick) + 128;
+				tick++;
+				if (tick == FTDI_DATA_RATE / simSignalFreq)
+					tick = 0;
+			}
+
+			res = SDL_SemWaitTimeout(readThreadBufferLock, FTDI_READ_WAIT_TIMEOUT);
+			if (res == SDL_MUTEX_TIMEDOUT) {
+				continue;
+			}
+			
+			if (bufferQueue.size() < FTDI_READ_BUF_COUNT)
+				bufferQueue.push(buffer);
+			else
+				free(buffer);
+
+			SDL_SemPost(readThreadBufferLock);
+
+
+			// control generating speed
+			if (SDL_GetTicks() - simTicks < simBufferDelay)
+				SDL_Delay(simBufferDelay - SDL_GetTicks() + simTicks);
+			simTicks = SDL_GetTicks();
 			break;
 
 		default:
 			// create random buffer
+			buffer = (byte*)malloc(FTDI_READ_BUF_SIZE);
+
 			srand(time(NULL));
 			for (int i = 0; i < FTDI_READ_BUF_SIZE; i++) {
 				buffer[i] = rand() % 256;
@@ -85,6 +118,8 @@ int simThreadFunc(void* data) {
 
 			if (bufferQueue.size() < FTDI_READ_BUF_COUNT)
 				bufferQueue.push(buffer);
+			else
+				free(buffer);
 
 			// cout << "simThreadFunc bufferQueue.size(): " << bufferQueue.size() << endl;
 			SDL_SemPost(readThreadBufferLock);

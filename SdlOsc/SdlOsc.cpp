@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	cout << endl << "*** " << PROGRAM_NAME << " Ver." << MAIN_VER << "." << BRANCH_VER << "." << MINOR_VER << " ***" << endl;
 	cout << "Created by " << CREATOR << " " << CREATE_DATE << endl;
 
-	#ifndef DATA_SIMULATOR
+#ifndef DATA_SIMULATOR
 	// 1. list ftdi ports
 	cout << endl;
 	if (!listFtdiPorts()) {
@@ -53,9 +53,9 @@ int main(int argc, char *argv[])
 
 	// 3. create a thread to read usb data
 	startFtdiReadThread();
-	#else
-	startDataSimulatorThread(Random);
-	#endif
+#else
+	startDataSimulatorThread(Sine);
+#endif
 
 	// 4. create a thread to prepare frame
 	startPipeline();

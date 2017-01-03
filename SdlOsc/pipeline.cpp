@@ -135,14 +135,14 @@ int pipelineThreadFunc(void* data) {
 						}
 						int pixelAverage = pixelSum / channelBytePerPixel;
 
-						// SDL_SemWait(pipelineThreadLock);
+						SDL_SemWait(pipelineThreadLock);
 						(vertices[i])[j * VERTEX_DIM] = (GLfloat)((lastX[i] + j) % windowWidth); // X
 						(vertices[i])[j * VERTEX_DIM + 1] = (GLfloat)pixelAverage / (GLfloat)SAMPLE_MAX_VALUE * windowHeight; // Y
 						(vertices[i])[j * VERTEX_DIM + 2] = (GLfloat)0.0f; // Z
 						// (vertices[i])[j * 4 + 3] = (GLfloat)0.0f; // W
 
 						pipelineEmptyFlag = false;
-						// SDL_SemPost(pipelineThreadLock);
+						SDL_SemPost(pipelineThreadLock);
 					}
 
 					lastX[i] = (lastX[i] + pixelPerFrame) % windowWidth;
@@ -167,12 +167,12 @@ int getArrays(GLfloat** vertDest, int channelNo) {
 		Sleep(1);
 	}
 
-	// SDL_SemWait(pipelineThreadLock);
+	SDL_SemWait(pipelineThreadLock);
 	*vertDest = (GLfloat*)malloc(renderPixelCount[channelNo] * VERTEX_DIM * sizeof(GLfloat));
 	memcpy(*vertDest, vertices[channelNo], renderPixelCount[channelNo] * VERTEX_DIM * sizeof(GLfloat));
 
 	pipelineEmptyFlag = true;
-	// SDL_SemPost(pipelineThreadLock);
+	SDL_SemPost(pipelineThreadLock);
 
 	return renderPixelCount[channelNo];
 }
