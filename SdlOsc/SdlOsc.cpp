@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 	// 3. create a thread to read usb data
 	startFtdiReadThread();
 	#else
-	startDataSimulatorThread();
+	startDataSimulatorThread(Random);
 	#endif
 
 	// 4. create a thread to prepare frame
