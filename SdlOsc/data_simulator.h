@@ -7,6 +7,7 @@ typedef enum _SIM_DATA_TYPE{
 } SIM_DATA_TYPE;
 
 void startDataSimulatorThread(SIM_DATA_TYPE type);
+void stopDataSimulatorThread();
 
 // helper
 int simThreadFunc(void* data);

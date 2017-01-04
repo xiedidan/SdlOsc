@@ -88,6 +88,13 @@ void stopFtdiReadThread() {
 	int retValue;
 	cout << "Stopping FTDI... ";
 
+	// clear buffer queue
+	while (!bufferQueue.empty()) {
+		byte* buffer = bufferQueue.front();
+		free(buffer);
+		bufferQueue.pop();
+	}
+
 	readThreadQuitFlag = true;
 	SDL_WaitThread(readThread, &retValue);
 	cout << "Done" << endl;

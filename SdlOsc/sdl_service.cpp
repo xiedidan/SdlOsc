@@ -255,12 +255,12 @@ int renderThreadFunc(void* data) {
 	// now init our local GL context
 	initGL(windowWidth, windowHeight);
 
-	// init ImGUI
-	ImGui_Service_Init(sdlWindow);
-
 	// init FreeType2
 	initFreeType();
 	initCharmap();
+
+	// init ImGUI
+	ImGui_Service_Init(sdlWindow);
 	
 	// render loop
 	while (renderFlag) {

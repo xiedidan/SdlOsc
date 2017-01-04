@@ -32,6 +32,22 @@ void startDataSimulatorThread(SIM_DATA_TYPE type) {
 	simThread = SDL_CreateThread(simThreadFunc, "SimThread", pType);
 }
 
+void stopDataSimulatorThread() {
+	int retValue;
+	cout << "Stopping data simulator... ";
+
+	// clear buffer queue
+	while (!bufferQueue.empty()) {
+		byte* buffer = bufferQueue.front();
+		free(buffer);
+		bufferQueue.pop();
+	}
+
+	simThreadQuitFlag = true;
+	SDL_WaitThread(simThread, &retValue);
+	cout << "Done" << endl;
+}
+
 int simThreadFunc(void* data) {
 	SIM_DATA_TYPE type = *((SIM_DATA_TYPE*)data);
 	if (data != NULL)
@@ -51,7 +67,7 @@ int simThreadFunc(void* data) {
 
 			srand(time(NULL));
 			for (int i = 0; i < FTDI_READ_BUF_SIZE; i++) {
-				buffer[i] = rand() % 256;
+				buffer[i] = (byte)(rand() % 256);
 			}
 
 			res = SDL_SemWaitTimeout(readThreadBufferLock, FTDI_READ_WAIT_TIMEOUT);
@@ -77,17 +93,17 @@ int simThreadFunc(void* data) {
 			buffer = (byte*)malloc(FTDI_READ_BUF_SIZE);
 
 			for (int i = 0; i < FTDI_READ_BUF_SIZE; i++) {
-				buffer[i] = 64 * sin(w * tick) + 128;
+				buffer[i] = (byte)(64 * sin(w * tick) + 128);
 				tick++;
-				if (tick == FTDI_DATA_RATE / simSignalFreq)
-					tick = 0;
+				// if (tick == FTDI_DATA_RATE / simSignalFreq)
+					// tick = 0;
 			}
 
 			res = SDL_SemWaitTimeout(readThreadBufferLock, FTDI_READ_WAIT_TIMEOUT);
 			if (res == SDL_MUTEX_TIMEDOUT) {
 				continue;
-			}
-			
+			}	
+
 			if (bufferQueue.size() < FTDI_READ_BUF_COUNT)
 				bufferQueue.push(buffer);
 			else
@@ -108,7 +124,7 @@ int simThreadFunc(void* data) {
 
 			srand(time(NULL));
 			for (int i = 0; i < FTDI_READ_BUF_SIZE; i++) {
-				buffer[i] = rand() % 256;
+				buffer[i] = (byte)(rand() % 256);
 			}
 
 			res = SDL_SemWaitTimeout(readThreadBufferLock, FTDI_READ_WAIT_TIMEOUT);

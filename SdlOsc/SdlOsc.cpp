@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 #else
 	startDataSimulatorThread(Sine);
 #endif
-
+	
 	// 4. create a thread to prepare frame
 	startPipeline();
 
@@ -81,7 +81,11 @@ int main(int argc, char *argv[])
 	}
 
 	// 9. clean up
+#ifndef DATA_SIMULATOR
 	stopFtdiReadThread();
+#else
+	stopDataSimulatorThread();
+#endif
 	stopPipeline();
 	stopCursorThread();
 	stopRender();

@@ -15,7 +15,7 @@ int glMajorVersion = 0;
 
 IMGUI_API bool ImGui_Service_Init(SDL_Window* window) {
 	// detect opengl major version
-	char* versionStr = (char*)malloc(10);
+	char* versionStr = (char*)malloc(1024);
 	memcpy(versionStr, (char*)glGetString(GL_VERSION), strlen((char*)glGetString(GL_VERSION)));
 	char* piece = NULL;
 	char* nextPiece = NULL;
