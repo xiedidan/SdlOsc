@@ -36,6 +36,9 @@ void stopDataSimulatorThread() {
 	int retValue;
 	cout << "Stopping data simulator... ";
 
+	simThreadQuitFlag = true;
+	SDL_WaitThread(simThread, &retValue);
+
 	// clear buffer queue
 	while (!bufferQueue.empty()) {
 		byte* buffer = bufferQueue.front();
@@ -43,8 +46,6 @@ void stopDataSimulatorThread() {
 		bufferQueue.pop();
 	}
 
-	simThreadQuitFlag = true;
-	SDL_WaitThread(simThread, &retValue);
 	cout << "Done" << endl;
 }
 

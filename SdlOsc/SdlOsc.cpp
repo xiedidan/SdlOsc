@@ -81,14 +81,14 @@ int main(int argc, char *argv[])
 	}
 
 	// 9. clean up
+	stopCursorThread();
+	stopRender();
+	stopPipeline();
 #ifndef DATA_SIMULATOR
 	stopFtdiReadThread();
 #else
 	stopDataSimulatorThread();
 #endif
-	stopPipeline();
-	stopCursorThread();
-	stopRender();
 
 	return EXIT_SUCCESS;
 }
