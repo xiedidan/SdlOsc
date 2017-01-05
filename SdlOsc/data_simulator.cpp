@@ -21,7 +21,7 @@ extern SDL_sem* readThreadBufferLock;
 uint32_t simBufferDelay =  1000 * FTDI_READ_BUF_SIZE / FTDI_DATA_RATE;
 uint32_t simTicks = 0;
 
-uint32_t simSignalFreq = 1280;
+uint32_t simSignalFreq = 1506;
 
 void startDataSimulatorThread(SIM_DATA_TYPE type) {
 	SIM_DATA_TYPE* pType = (SIM_DATA_TYPE*)malloc(sizeof(SIM_DATA_TYPE));
@@ -54,11 +54,12 @@ int simThreadFunc(void* data) {
 	if (data != NULL)
 		free(data);
 
+	uint32_t tick = 0;
+
 	while (!simThreadQuitFlag) {
 		byte* buffer;
 		int res;
 		int bufferCounter = 0;
-		uint32_t tick = 0;
 		double w = 2 * (double)M_PI / ((double)FTDI_DATA_RATE / (double)simSignalFreq);
 
 		switch (type) {
@@ -107,8 +108,11 @@ int simThreadFunc(void* data) {
 
 			if (bufferQueue.size() < FTDI_READ_BUF_COUNT)
 				bufferQueue.push(buffer);
-			else
+			else {
 				free(buffer);
+				cout << "free!" << endl;
+			}
+				
 
 			SDL_SemPost(readThreadBufferLock);
 

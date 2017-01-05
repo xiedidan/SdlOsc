@@ -141,6 +141,11 @@ int pipelineThreadFunc(void* data) {
 						(vertices[i])[j * VERTEX_DIM + 2] = (GLfloat)0.0f; // Z
 						// (vertices[i])[j * 4 + 3] = (GLfloat)0.0f; // W
 
+						/* TODO : clear this
+						if ((j > 0) && ((vertices[i])[(j - 1) * VERTEX_DIM + 1] - (vertices[i])[j * VERTEX_DIM + 1] > 50))
+							cout << "1: " << (vertices[i])[(j - 1) * VERTEX_DIM + 1] << " 2: " << (vertices[i])[j * VERTEX_DIM + 1] << endl;
+						*/
+
 						pipelineEmptyFlag = false;
 						SDL_SemPost(pipelineThreadLock);
 					}
