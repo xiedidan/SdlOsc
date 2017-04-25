@@ -26,7 +26,7 @@ int timePerDiv[2] = { 100000, 100000 }; // ns
 int voltagePerDiv[2] = { 1000, 1000 }; // mV
 
 // last buffer
-int lastBufOffset = FTDI_READ_BUF_SIZE; // empty
+int lastBufOffset = ftdiConfig.readBufSize; // empty
 byte* lastBuf = NULL;
 
 // frame queue
@@ -184,7 +184,7 @@ int getArrays(GLfloat** vertDest, int channelNo) {
 
 // helper
 int getChannelDataRate(int channelCount) {
-	int channelBytePerSec = FTDI_DATA_RATE / channelCount;
+	int channelBytePerSec = ftdiConfig.readBufSize / channelCount;
 
 	return channelBytePerSec;
 }
@@ -197,14 +197,14 @@ int copyChannelFrameData(byte* data, int channelBytePerFrame) {
 	// assume we could always read enough data frome queue - this is true for our getData() implementation
 
 	// caller have to malloc data
-	int lastBufLeftByte = FTDI_READ_BUF_SIZE - lastBufOffset;
+	int lastBufLeftByte = ftdiConfig.readBufSize - lastBufOffset;
 	if (lastBufLeftByte >= channelBytePerFrame) {
 		// enough bytes in lastBuf, just copy from there
 		memcpy(data, lastBuf, channelBytePerFrame);
 
 		if (lastBufLeftByte == channelBytePerFrame) {
 			// last buf is empty
-			lastBufOffset = FTDI_READ_BUF_SIZE;
+			lastBufOffset = ftdiConfig.readBufSize;
 		}
 		else {
 			lastBufOffset += channelBytePerFrame;
@@ -220,30 +220,30 @@ int copyChannelFrameData(byte* data, int channelBytePerFrame) {
 		
 		// we have to get more data from the queue
 		int moreByte = channelBytePerFrame - lastBufLeftByte;
-		int moreBuf = moreByte / FTDI_READ_BUF_SIZE;
+		int moreBuf = moreByte / ftdiConfig.readBufSize;
 		int res = getDataTimeout((byte*)(data + lastBufLeftByte), moreBuf, PIPELINE_READ_TIMEOUT);
 		if (res == 0) {
 			return 0;
 		}
 
 		// ... and maybe even 1 more block
-		int lastByte = moreByte % FTDI_READ_BUF_SIZE;
+		int lastByte = moreByte % ftdiConfig.readBufSize;
 		if (lastByte != 0) {
 			if (lastBuf == NULL)
-				lastBuf = (byte*)malloc(FTDI_READ_BUF_SIZE);
+				lastBuf = (byte*)malloc(ftdiConfig.readBufSize);
 
 			res = getDataTimeout(lastBuf, 1, PIPELINE_READ_TIMEOUT);
 			if (res == 0) {
 				return 0;
 			}
 
-			memcpy((byte*)(data + (FTDI_READ_BUF_SIZE - lastByte)), lastBuf, lastByte);
+			memcpy((byte*)(data + (ftdiConfig.readBufSize - lastByte)), lastBuf, lastByte);
 
 			lastBufOffset = lastByte;
 		}
 		else {
 			// just got enough data from the queue
-			lastBufOffset = FTDI_READ_BUF_SIZE;
+			lastBufOffset = ftdiConfig.readBufSize;
 		}
 	}
 

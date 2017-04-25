@@ -18,7 +18,7 @@ SDL_Thread* simThread = NULL;
 bool simThreadQuitFlag = false;
 extern SDL_sem* readThreadBufferLock;
 
-uint32_t simBufferDelay =  1000 * FTDI_READ_BUF_SIZE / FTDI_DATA_RATE;
+uint32_t simBufferDelay =  1000 * ftdiConfig.readBufSize / ftdiConfig.dataRate;
 uint32_t simTicks = 0;
 
 uint32_t simSignalFreq = 1506;
@@ -60,12 +60,12 @@ int simThreadFunc(void* data) {
 		byte* buffer;
 		int res;
 		int bufferCounter = 0;
-		double w = 2 * (double)M_PI / ((double)FTDI_DATA_RATE / (double)simSignalFreq);
+		double w = 2 * (double)M_PI / ((double)ftdiConfig.dataRate / (double)simSignalFreq);
 
 		switch (type) {
 		case Random:
 			// create random buffer
-			buffer = (byte*)malloc(FTDI_READ_BUF_SIZE);
+			buffer = (byte*)malloc(ftdiConfig.readBufSize);
 
 			srand(time(NULL));
 			for (int i = 0; i < FTDI_READ_BUF_SIZE; i++) {
@@ -92,9 +92,9 @@ int simThreadFunc(void* data) {
 			break;
 
 		case Sine:
-			buffer = (byte*)malloc(FTDI_READ_BUF_SIZE);
+			buffer = (byte*)malloc(ftdiConfig.readBufSize);
 
-			for (int i = 0; i < FTDI_READ_BUF_SIZE; i++) {
+			for (int i = 0; i < ftdiConfig.readBufSize; i++) {
 				buffer[i] = (byte)(64 * sin(w * tick) + 128);
 				tick++;
 				// if (tick == FTDI_DATA_RATE / simSignalFreq)
@@ -125,10 +125,10 @@ int simThreadFunc(void* data) {
 
 		default:
 			// create random buffer
-			buffer = (byte*)malloc(FTDI_READ_BUF_SIZE);
+			buffer = (byte*)malloc(ftdiConfig.readBufSize);
 
 			srand(time(NULL));
-			for (int i = 0; i < FTDI_READ_BUF_SIZE; i++) {
+			for (int i = 0; i < ftdiConfig.readBufSize; i++) {
 				buffer[i] = (byte)(rand() % 256);
 			}
 

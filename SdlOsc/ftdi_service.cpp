@@ -9,6 +9,8 @@
 
 using namespace std;
 
+FTDI_CONFIG ftdiConfig;
+
 FT_HANDLE ftHandle;
 char** bufPointers;
 
@@ -66,7 +68,7 @@ bool openFtdiPort(int index) {
 
 		FT_Purge(ftHandle, FT_PURGE_RX | FT_PURGE_TX);
 		FT_SetBitMode(ftHandle, 0, 0x40); // sync 245 fifo
-		FT_SetUSBParameters(ftHandle, FTDI_READ_BUF_SIZE, 4096);
+		FT_SetUSBParameters(ftHandle, ftdiConfig.readBufSize, 4096);
 		FT_SetFlowControl(ftHandle, FT_FLOW_RTS_CTS, 0, 0);	// required to avoid data loss, see appnote "an_130_ft2232h_used_in_ft245 synchronous fifo mode.pdf"
 		FT_SetTimeouts(ftHandle, FTDI_READ_TIMEOUT, FTDI_WRITE_TIMEOUT);
 
@@ -101,6 +103,31 @@ void stopFtdiReadThread() {
 	cout << "Done" << endl;
 }
 
+int getAllData(byte** dataPtr) {
+	// caller doesn't have to malloc, but have to free
+	// returns buffer length in byte
+
+	int size = 0;
+
+	SDL_SemWait(readThreadBufferLock);
+
+	int blockCount = bufferQueue.size;
+	size = blockCount * ftdiConfig.readBufSize;
+
+	*dataPtr = (byte*)malloc(size);
+	for (int i = 0; i < size; i++) {
+		byte* buffer = bufferQueue.front();
+		bufferQueue.pop();
+
+		memcpy(dataPtr + i * ftdiConfig.readBufSize, buffer, ftdiConfig.readBufSize);
+	}
+
+	SDL_SemPost(readThreadBufferLock);
+
+	return size;
+}
+
+/*
 int getData(byte* data, int bufCount) {
 	// caller have to malloc data
 
@@ -165,16 +192,17 @@ int getDataTimeout(byte* data, int bufCount, int timeout) {
 
 	return size;
 }
+*/
 
 // helper
 int readThreadFunc(void* data) {
 	while (!readThreadQuitFlag) {
 		// read data from ftdi device
 		DWORD bytesRead = 0;
-		byte* buffer = (byte*)malloc(FTDI_READ_BUF_SIZE);
+		byte* buffer = (byte*)malloc(ftdiConfig.readBufSize);
 
 		//  TODO : what if bytesRead < FTDI_READ_BUF_SIZE or FT_READ < 0?
-		FT_Read(ftHandle, buffer, FTDI_READ_BUF_SIZE, &bytesRead);
+		FT_Read(ftHandle, buffer, ftdiConfig.readBufSize, &bytesRead);
 
 		int res = SDL_SemWaitTimeout(readThreadBufferLock, FTDI_READ_WAIT_TIMEOUT);
 		if (res == SDL_MUTEX_TIMEDOUT) {
